@@ -30,14 +30,14 @@ impl Display for Error {
                 f,
                 "Library did not get setup correctly. Did you call setup?"
             ),
-            Str(ref err) => write!(f, "{}", err),
-            Std(ref err) => <dyn std::error::Error as fmt::Display>::fmt(&**err, f),
-            Validation(ref err) => <validator::ValidationErrors as fmt::Display>::fmt(err, f),
-            HttpClient(ref err) => <reqwest::Error as fmt::Display>::fmt(err, f),
+            Str(err) => write!(f, "{}", err),
+            Std(err) => <dyn std::error::Error as fmt::Display>::fmt(&**err, f),
+            Validation(err) => <validator::ValidationErrors as fmt::Display>::fmt(err, f),
+            HttpClient(err) => <reqwest::Error as fmt::Display>::fmt(err, f),
             Api => write!(f, "API returned an unexpected result."),
-            Url(ref err) => <url::ParseError as fmt::Display>::fmt(err, f),
-            Lua(ref err) => <LuaError as fmt::Display>::fmt(err, f),
-            Logger(ref err) => <SetLoggerError as fmt::Display>::fmt(err, f),
+            Url(err) => <url::ParseError as fmt::Display>::fmt(err, f),
+            Lua(err) => <LuaError as fmt::Display>::fmt(err, f),
+            Logger(err) => <SetLoggerError as fmt::Display>::fmt(err, f),
         }
     }
 }

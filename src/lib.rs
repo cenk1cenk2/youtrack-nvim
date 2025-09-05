@@ -62,7 +62,7 @@ impl Module {
             api_url,
         });
 
-        Ok(NoData {})
+        Ok(NoData)
     }
 }
 

@@ -1,16 +1,16 @@
 use std::fmt::Debug;
 
 use chrono::prelude::*;
-use mlua::prelude::*;
 use mlua::AppDataRef;
 use mlua::Lua;
+use mlua::prelude::*;
 use serde::{Deserialize, Serialize};
 
+use crate::Module;
 use crate::error::Error;
 use crate::lua::NoData;
 use crate::macros::{from_lua, into_lua};
-use crate::Module;
-use serde_json::{json, Value as JsonValue};
+use serde_json::{Value as JsonValue, json};
 
 static SAVED_QUERY_FIELDS: &str = "id,name,query";
 static ISSUES_FIELDS: &str = "id,idReadable,summary,description,project(id,name,shortName),customFields(id,name,presentation,value(id,name,presentation,color(background,foreground))),tags(id,color(background,foreground),name)";
@@ -206,7 +206,7 @@ pub async fn get_saved_queries(
                 options,
                 result
             );
-            callback.call((LuaNil, lua.to_value(&result)))?;
+            callback.call::<()>((LuaNil, lua.to_value(&result)))?;
         }
         _ => {
             let text = res.text().await?;
@@ -216,7 +216,7 @@ pub async fn get_saved_queries(
                 options,
                 text,
             );
-            callback.call((
+            callback.call::<()>((
                 format!("Youtrack saved queries can not be fetched: {:#?}", text),
                 LuaNil,
             ))?;
@@ -321,7 +321,7 @@ pub async fn get_issues(
                 options.unwrap_or_default(),
                 processed
             );
-            callback.call((LuaNil, lua.to_value(&processed)))?;
+            callback.call::<()>((LuaNil, lua.to_value(&processed)))?;
         }
         _ => {
             let text = res.text().await?;
@@ -331,7 +331,7 @@ pub async fn get_issues(
                 options.unwrap_or_default(),
                 text
             );
-            callback.call((
+            callback.call::<()>((
                 format!("Youtrack issues can not be fetched: {:#?}", text),
                 LuaNil,
             ))?;
@@ -378,7 +378,7 @@ pub async fn get_issue(
             let processed = process_issue(json.clone())?;
 
             log::debug!("Youtrack issue details: {:?} -> {:#?}", options, processed);
-            callback.call((LuaNil, lua.to_value(&processed)))?;
+            callback.call::<()>((LuaNil, lua.to_value(&processed)))?;
         }
         _ => {
             let text = res.text().await?;
@@ -388,7 +388,7 @@ pub async fn get_issue(
                 options,
                 text
             );
-            callback.call((
+            callback.call::<()>((
                 format!("Youtrack issue details can not be fetched: {:#?}", text),
                 LuaNil,
             ))?;
@@ -437,7 +437,7 @@ pub async fn create_issue(
             let json: JsonValue = res.json().await?;
             let processed = process_issue(json)?;
             log::debug!("Youtrack issue created: {:?} -> {:#?}", options, processed);
-            callback.call((LuaNil, lua.to_value(&processed)))?;
+            callback.call::<()>((LuaNil, lua.to_value(&processed)))?;
         }
         _ => {
             log::debug!(
@@ -445,7 +445,7 @@ pub async fn create_issue(
                 options,
                 res.text().await?
             );
-            callback.call(("Youtrack issue issue can not be created.", LuaNil))?;
+            callback.call::<()>(("Youtrack issue issue can not be created.", LuaNil))?;
         }
     }
 
@@ -492,7 +492,7 @@ pub async fn update_issue(
         reqwest::StatusCode::OK => {
             let json: JsonValue = res.json().await?;
             log::debug!("Youtrack issue updated: {:?} -> {:#?}", options, json);
-            callback.call((LuaNil, lua.to_value(&json)))?;
+            callback.call::<()>((LuaNil, lua.to_value(&json)))?;
         }
         _ => {
             log::debug!(
@@ -500,7 +500,7 @@ pub async fn update_issue(
                 options,
                 res.text().await?
             );
-            callback.call((
+            callback.call::<()>((
                 format!("Youtrack issue issue can not be updated: {}", options.id),
                 LuaNil,
             ))?;
@@ -550,7 +550,7 @@ pub async fn apply_issue_command(
                 options,
                 json
             );
-            callback.call((LuaNil, lua.to_value(&json)))?;
+            callback.call::<()>((LuaNil, lua.to_value(&json)))?;
         }
         _ => {
             log::debug!(
@@ -558,7 +558,7 @@ pub async fn apply_issue_command(
                 options,
                 res.text().await?
             );
-            callback.call((
+            callback.call::<()>((
                 format!("Youtrack issue command can not be applied: {}", options.id),
                 LuaNil,
             ))?;
@@ -607,7 +607,7 @@ pub async fn add_issue_comment(
         reqwest::StatusCode::OK => {
             let json: JsonValue = res.json().await?;
             log::debug!("Youtrack issue comment added: {:?} -> {:#?}", options, json);
-            callback.call((LuaNil, lua.to_value(&json)))?;
+            callback.call::<()>((LuaNil, lua.to_value(&json)))?;
         }
         _ => {
             log::debug!(
@@ -615,7 +615,7 @@ pub async fn add_issue_comment(
                 options,
                 res.text().await?
             );
-            callback.call((
+            callback.call::<()>((
                 format!("Youtrack issue comment can not be added: {}", options.id),
                 LuaNil,
             ))?;
@@ -672,7 +672,7 @@ pub async fn get_projects(
                 options.unwrap_or_default(),
                 processed
             );
-            callback.call((LuaNil, lua.to_value(&processed)))?;
+            callback.call::<()>((LuaNil, lua.to_value(&processed)))?;
         }
         _ => {
             let text = res.text().await?;
@@ -682,7 +682,7 @@ pub async fn get_projects(
                 options.unwrap_or_default(),
                 text
             );
-            callback.call((
+            callback.call::<()>((
                 format!("Youtrack projects can not be fetched: {:#?}", text),
                 LuaNil,
             ))?;
@@ -732,7 +732,7 @@ pub async fn get_agiles(
                 options.unwrap_or_default(),
                 processed
             );
-            callback.call((LuaNil, lua.to_value(&processed)))?;
+            callback.call::<()>((LuaNil, lua.to_value(&processed)))?;
         }
         _ => {
             let text = res.text().await?;
@@ -742,7 +742,7 @@ pub async fn get_agiles(
                 options.unwrap_or_default(),
                 text
             );
-            callback.call((
+            callback.call::<()>((
                 format!("Youtrack agiles can not be fetched: {:#?}", text),
                 LuaNil,
             ))?;
