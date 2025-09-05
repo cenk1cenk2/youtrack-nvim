@@ -37,9 +37,14 @@ macro_rules! export_async_fn {
         $exports.set(
             $name.unwrap_or(stringify!($fn)),
             $lua.create_function(move |lua: &Lua, args: $args| {
+                let _ = lua
+                    .app_data_ref::<Module>()
+                    .ok_or_else(|| Error::NoSetup.into_lua_err())?;
+
                 let f = lua
                     .create_async_function(|lua: Lua, args: $args| async move {
-                        let m = lua.app_data_ref::<Module>().ok_or_else(|| Error::NoSetup)?;
+                        // TODO: this is validated outside, can not pass this due to borrowing reasons, have to figure that out again
+                        let m = lua.app_data_ref::<Module>().unwrap();
                         $fn(&lua, m, args).await.map_err(|err| err.into_lua_err())?;
 
                         Ok(LuaValue::Nil)
