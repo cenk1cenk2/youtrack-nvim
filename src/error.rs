@@ -1,5 +1,6 @@
 use std::{
     fmt::{self, Display},
+    io::{self},
     sync::Arc,
 };
 
@@ -84,6 +85,30 @@ impl From<SetLoggerError> for Error {
 impl From<LuaError> for Error {
     fn from(err: LuaError) -> Self {
         Self::Lua(err)
+    }
+}
+
+impl From<io::Error> for Error {
+    fn from(err: io::Error) -> Self {
+        Self::Std(Box::new(err))
+    }
+}
+
+impl From<Error> for io::Error {
+    fn from(err: Error) -> Self {
+        match err {
+            Error::Std(boxed_err) => {
+                if let Some(io_err) = boxed_err.downcast_ref::<io::Error>() {
+                    io::Error::new(io_err.kind(), format!("{}", io_err))
+                } else {
+                    io::Error::new(io::ErrorKind::Other, boxed_err)
+                }
+            }
+            Error::Lua(lua_err) => {
+                io::Error::new(io::ErrorKind::Other, format!("Lua error: {}", lua_err))
+            }
+            other => io::Error::new(io::ErrorKind::Other, format!("{}", other)),
+        }
     }
 }
 

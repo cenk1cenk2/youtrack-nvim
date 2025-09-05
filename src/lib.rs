@@ -17,6 +17,7 @@ mod lua;
 mod macros;
 mod writer;
 
+#[derive(Clone)]
 struct Module {
     pub config: Config,
     pub client: reqwest::Client,
@@ -24,7 +25,7 @@ struct Module {
 }
 
 impl Module {
-    fn setup(lua: &'static Lua, config: Config) -> Result<NoData, Error> {
+    fn setup(lua: &Lua, config: Config) -> Result<NoData, Error> {
         let _ = Builder::with_level(log::Level::Trace.as_str())
             .with_target_writer("*", LuaWriter::new(lua, "youtrack.log")?.get())
             .try_init()
@@ -73,17 +74,23 @@ static RUNTIME: once_cell::sync::Lazy<Runtime> = once_cell::sync::Lazy::new(|| {
 });
 
 #[mlua::lua_module(skip_memory_check)]
-pub fn youtrack_lib(lua: &'static Lua) -> mlua::Result<LuaTable<'static>> {
+pub fn youtrack_lib(lua: &Lua) -> mlua::Result<LuaTable> {
     let exports = lua.create_table()?;
 
     exports.set(
         "setup",
-        lua.create_function(move |lua: &'static Lua, args| {
+        lua.create_function(|lua: &Lua, args| {
             Module::setup(lua, args).map_err(|err| err.into_lua_err())
         })?,
     )?;
 
-    export_async_fn!(lua, exports, None, get_saved_queries, GetSavedQueriesArgs)?;
+    export_async_fn!(
+        lua.clone(),
+        exports,
+        None,
+        get_saved_queries,
+        GetSavedQueriesArgs
+    )?;
     export_async_fn!(lua, exports, None, get_issues, GetIssuesArgs)?;
     export_async_fn!(lua, exports, None, get_issue, GetIssueArgs)?;
     export_async_fn!(lua, exports, None, update_issue, UpdateIssueArgs)?;

@@ -31,8 +31,8 @@ from_lua!(ConfigIssuesIssue);
 
 impl Config {}
 
-impl<'lua> FromLua<'lua> for Config {
-    fn from_lua(value: LuaValue<'lua>, lua: &'lua Lua) -> LuaResult<Self> {
+impl FromLua for Config {
+    fn from_lua(value: LuaValue, lua: &Lua) -> LuaResult<Self> {
         let c: Config = lua.from_value(value)?;
 
         match c.validate() {

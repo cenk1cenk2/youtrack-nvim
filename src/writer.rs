@@ -12,7 +12,6 @@ use structured_logger::Writer;
 
 #[derive(Debug)]
 pub enum LogLevel {
-    Level(String),
     Error,
     Warn,
     Info,
@@ -35,7 +34,6 @@ impl From<String> for LogLevel {
 impl Display for LogLevel {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            LogLevel::Level(level) => write!(f, "{}", level.to_lowercase()),
             LogLevel::Error => write!(f, "error"),
             LogLevel::Warn => write!(f, "warn"),
             LogLevel::Info => write!(f, "info"),
@@ -46,17 +44,16 @@ impl Display for LogLevel {
 }
 
 pub struct LuaWriter {
-    log: LuaTable<'static>,
-    lua: &'static Lua,
+    log: LuaTable,
 }
 
 impl LuaWriter {
-    pub fn new(lua: &'static Lua, import: &str) -> Result<Self, Error> {
+    pub fn new(lua: &Lua, import: &str) -> Result<Self, Error> {
         let globals = lua.globals();
         let require: LuaFunction = globals.get("require")?;
-        let log: LuaTable<'static> = require.call(import)?;
+        let log: LuaTable = require.call(import)?;
 
-        Ok(Self { lua, log })
+        Ok(Self { log })
     }
 
     pub fn get(self) -> Box<dyn Writer> {
@@ -79,13 +76,16 @@ impl Writer for LuaWriter {
             .map(|v| v.to_string())
             .unwrap_or_default();
 
+        let log_level = LogLevel::from(level);
+        let log_message = format!("[{}] {}", target, message);
+
         self.log
-            .get::<_, LuaTable>("p")
-            .map_err(io::Error::other)?
-            .get::<_, LuaFunction>(LogLevel::Level(level).to_string())
-            .map_err(io::Error::other)?
-            .call(format!("[{}] {}", target, message).into_lua(self.lua))
-            .map_err(io::Error::other)?;
+            .get::<LuaTable>("p")
+            .map_err(Error::from)?
+            .get::<LuaFunction>(log_level.to_string())
+            .map_err(Error::from)?
+            .call::<()>(log_message)
+            .map_err(Error::from)?;
 
         Ok(())
     }

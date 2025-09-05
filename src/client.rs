@@ -2,7 +2,8 @@ use std::fmt::Debug;
 
 use chrono::prelude::*;
 use mlua::prelude::*;
-use mlua::{AppDataRef, Lua};
+use mlua::AppDataRef;
+use mlua::Lua;
 use serde::{Deserialize, Serialize};
 
 use crate::error::Error;
@@ -142,13 +143,13 @@ impl Default for GetSavedQueries {
 into_lua!(GetSavedQueries);
 from_lua!(GetSavedQueries);
 
-pub type GetSavedQueriesArgs<'lua> = (Option<GetSavedQueries>, LuaFunction<'lua>);
+pub type GetSavedQueriesArgs = (Option<GetSavedQueries>, LuaFunction);
 
 #[allow(unused_variables)]
 pub async fn get_saved_queries(
     lua: &Lua,
-    m: AppDataRef<'static, Module>,
-    (options, callback): GetSavedQueriesArgs<'_>,
+    m: AppDataRef<'_, Module>,
+    (options, callback): GetSavedQueriesArgs,
 ) -> Result<NoData, Error> {
     let mut url = m.api_url.clone();
 
@@ -243,13 +244,13 @@ impl Default for GetIssues {
 into_lua!(GetIssues);
 from_lua!(GetIssues);
 
-pub type GetIssuesArgs<'lua> = (Option<GetIssues>, LuaFunction<'lua>);
+pub type GetIssuesArgs = (Option<GetIssues>, LuaFunction);
 
 #[allow(unused_variables)]
 pub async fn get_issues(
     lua: &Lua,
-    m: AppDataRef<'static, Module>,
-    (options, callback): GetIssuesArgs<'_>,
+    m: AppDataRef<'_, Module>,
+    (options, callback): GetIssuesArgs,
 ) -> Result<NoData, Error> {
     let mut url = m.api_url.clone();
 
@@ -348,13 +349,13 @@ pub struct GetIssue {
 into_lua!(GetIssue);
 from_lua!(GetIssue);
 
-pub type GetIssueArgs<'lua> = (GetIssue, LuaFunction<'lua>);
+pub type GetIssueArgs = (GetIssue, LuaFunction);
 
 #[allow(unused_variables)]
 pub async fn get_issue(
     lua: &Lua,
-    m: AppDataRef<'static, Module>,
-    (options, callback): GetIssueArgs<'_>,
+    m: AppDataRef<'_, Module>,
+    (options, callback): GetIssueArgs,
 ) -> Result<NoData, Error> {
     let mut url = m.api_url.clone();
 
@@ -407,13 +408,13 @@ pub struct CreateIssue {
 into_lua!(CreateIssue);
 from_lua!(CreateIssue);
 
-pub type CreateIssueArgs<'lua> = (CreateIssue, LuaFunction<'lua>);
+pub type CreateIssueArgs = (CreateIssue, LuaFunction);
 
 #[allow(unused_variables)]
 pub async fn create_issue(
     lua: &Lua,
-    m: AppDataRef<'static, Module>,
-    (options, callback): CreateIssueArgs<'_>,
+    m: AppDataRef<'_, Module>,
+    (options, callback): CreateIssueArgs,
 ) -> Result<NoData, Error> {
     let mut url = m.api_url.clone();
 
@@ -461,13 +462,13 @@ pub struct UpdateIssue {
 into_lua!(UpdateIssue);
 from_lua!(UpdateIssue);
 
-pub type UpdateIssueArgs<'lua> = (UpdateIssue, LuaFunction<'lua>);
+pub type UpdateIssueArgs = (UpdateIssue, LuaFunction);
 
 #[allow(unused_variables)]
 pub async fn update_issue(
     lua: &Lua,
-    m: AppDataRef<'static, Module>,
-    (options, callback): UpdateIssueArgs<'_>,
+    m: AppDataRef<'_, Module>,
+    (options, callback): UpdateIssueArgs,
 ) -> Result<NoData, Error> {
     let mut url = m.api_url.clone();
 
@@ -518,13 +519,13 @@ pub struct ApplyIssueCommand {
 into_lua!(ApplyIssueCommand);
 from_lua!(ApplyIssueCommand);
 
-pub type ApplyIssueCommandArgs<'lua> = (ApplyIssueCommand, LuaFunction<'lua>);
+pub type ApplyIssueCommandArgs = (ApplyIssueCommand, LuaFunction);
 
 #[allow(unused_variables)]
 pub async fn apply_issue_command(
     lua: &Lua,
-    m: AppDataRef<'static, Module>,
-    (options, callback): ApplyIssueCommandArgs<'_>,
+    m: AppDataRef<'_, Module>,
+    (options, callback): ApplyIssueCommandArgs,
 ) -> Result<NoData, Error> {
     let mut url = m.api_url.clone();
 
@@ -576,13 +577,13 @@ pub struct AddIssueComment {
 into_lua!(AddIssueComment);
 from_lua!(AddIssueComment);
 
-pub type AddIssueCommentArgs<'lua> = (AddIssueComment, LuaFunction<'lua>);
+pub type AddIssueCommentArgs = (AddIssueComment, LuaFunction);
 
 #[allow(unused_variables)]
 pub async fn add_issue_comment(
     lua: &Lua,
-    m: AppDataRef<'static, Module>,
-    (options, callback): AddIssueCommentArgs<'_>,
+    m: AppDataRef<'_, Module>,
+    (options, callback): AddIssueCommentArgs,
 ) -> Result<NoData, Error> {
     let mut url = m.api_url.clone();
 
@@ -630,13 +631,13 @@ pub struct GetProjects {}
 into_lua!(GetProjects);
 from_lua!(GetProjects);
 
-pub type GetProjectsArgs<'lua> = (Option<GetProjects>, LuaFunction<'lua>);
+pub type GetProjectsArgs = (Option<GetProjects>, LuaFunction);
 
 #[allow(unused_variables)]
 pub async fn get_projects(
     lua: &Lua,
-    m: AppDataRef<'static, Module>,
-    (options, callback): GetProjectsArgs<'_>,
+    m: AppDataRef<'_, Module>,
+    (options, callback): GetProjectsArgs,
 ) -> Result<NoData, Error> {
     let mut url = m.api_url.clone();
 
@@ -697,13 +698,13 @@ pub struct GetAgiles {}
 into_lua!(GetAgiles);
 from_lua!(GetAgiles);
 
-pub type GetAgilesArgs<'lua> = (Option<GetAgiles>, LuaFunction<'lua>);
+pub type GetAgilesArgs = (Option<GetAgiles>, LuaFunction);
 
 #[allow(unused_variables)]
 pub async fn get_agiles(
     lua: &Lua,
-    m: AppDataRef<'static, Module>,
-    (options, callback): GetAgilesArgs<'_>,
+    m: AppDataRef<'_, Module>,
+    (options, callback): GetAgilesArgs,
 ) -> Result<NoData, Error> {
     let mut url = m.api_url.clone();
 
