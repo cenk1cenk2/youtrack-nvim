@@ -223,7 +223,7 @@ pub async fn get_saved_queries(
         }
     }
 
-    Ok(NoData)
+    Ok(NoData {})
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -338,7 +338,7 @@ pub async fn get_issues(
         }
     }
 
-    Ok(NoData)
+    Ok(NoData {})
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -395,7 +395,7 @@ pub async fn get_issue(
         }
     }
 
-    Ok(NoData)
+    Ok(NoData {})
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -449,7 +449,7 @@ pub async fn create_issue(
         }
     }
 
-    Ok(NoData)
+    Ok(NoData {})
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -507,7 +507,7 @@ pub async fn update_issue(
         }
     }
 
-    Ok(NoData)
+    Ok(NoData {})
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -565,7 +565,7 @@ pub async fn apply_issue_command(
         }
     }
 
-    Ok(NoData)
+    Ok(NoData {})
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -622,7 +622,7 @@ pub async fn add_issue_comment(
         }
     }
 
-    Ok(NoData)
+    Ok(NoData {})
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
@@ -689,7 +689,7 @@ pub async fn get_projects(
         }
     }
 
-    Ok(NoData)
+    Ok(NoData {})
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
@@ -749,7 +749,7 @@ pub async fn get_agiles(
         }
     }
 
-    Ok(NoData)
+    Ok(NoData {})
 }
 
 fn process_saved_query(query: JsonValue) -> Result<SavedQuery, Error> {
@@ -831,40 +831,40 @@ fn process_issue(issue: JsonValue) -> Result<Issue, Error> {
         comments: None,
     };
 
-    if let Some(field) = issue.get("comments") {
-        if let Some(comments) = field.as_array() {
-            result.comments = comments
-                .iter()
-                .rev()
-                .map(|comment| {
-                    comment.as_object().map(|comment| {
-                        let date = DateTime::from_timestamp_millis(
-                            comment.get("created").unwrap().as_i64().unwrap(),
-                        )
-                        .unwrap()
-                        .with_timezone(&Local);
+    if let Some(field) = issue.get("comments")
+        && let Some(comments) = field.as_array()
+    {
+        result.comments = comments
+            .iter()
+            .rev()
+            .map(|comment| {
+                comment.as_object().map(|comment| {
+                    let date = DateTime::from_timestamp_millis(
+                        comment.get("created").unwrap().as_i64().unwrap(),
+                    )
+                    .unwrap()
+                    .with_timezone(&Local);
 
-                        Comment {
-                            author: comment
-                                .get("author")
-                                .unwrap()
-                                .get("fullName")
-                                .unwrap()
-                                .as_str()
-                                .unwrap()
-                                .to_string(),
-                            text: comment
-                                .get("text")
-                                .unwrap()
-                                .as_str()
-                                .unwrap_or("[No text]")
-                                .to_string(),
-                            created_at: date.format("%FT%T").to_string(),
-                        }
-                    })
+                    Comment {
+                        author: comment
+                            .get("author")
+                            .unwrap()
+                            .get("fullName")
+                            .unwrap()
+                            .as_str()
+                            .unwrap()
+                            .to_string(),
+                        text: comment
+                            .get("text")
+                            .unwrap()
+                            .as_str()
+                            .unwrap_or("[No text]")
+                            .to_string(),
+                        created_at: date.format("%FT%T").to_string(),
+                    }
                 })
-                .collect::<Option<Vec<Comment>>>();
-        }
+            })
+            .collect::<Option<Vec<Comment>>>();
     }
 
     if let Some(description) = issue.get("description").unwrap().as_str() {

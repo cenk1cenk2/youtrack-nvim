@@ -1,7 +1,6 @@
 use std::{
     fmt::{self, Display},
     io::{self},
-    sync::Arc,
 };
 
 use log::SetLoggerError;
@@ -101,13 +100,11 @@ impl From<Error> for io::Error {
                 if let Some(io_err) = boxed_err.downcast_ref::<io::Error>() {
                     io::Error::new(io_err.kind(), format!("{}", io_err))
                 } else {
-                    io::Error::new(io::ErrorKind::Other, boxed_err)
+                    io::Error::other(boxed_err)
                 }
             }
-            Error::Lua(lua_err) => {
-                io::Error::new(io::ErrorKind::Other, format!("Lua error: {}", lua_err))
-            }
-            other => io::Error::new(io::ErrorKind::Other, format!("{}", other)),
+            Error::Lua(lua_err) => io::Error::other(format!("Lua error: {}", lua_err)),
+            other => io::Error::other(format!("{}", other)),
         }
     }
 }
@@ -116,7 +113,7 @@ impl From<Error> for mlua::Error {
     fn from(err: Error) -> Self {
         match err {
             Error::Lua(err) => err,
-            err => LuaError::ExternalError(Arc::new(err)),
+            err => LuaError::external(err.to_string()),
         }
     }
 }
